@@ -15,38 +15,44 @@ import java.util.Set;
 import static org.testng.Assert.assertEquals;
 
 /**
- * Created by pshynin on 11/10/16.
+ * Created by pshynin on 11/10/15.
  */
 public class RestTests {
 
   @Test
   public void testCreateIssue() throws IOException {
-    //получаем старый список(множество) баг репортов
+    //get old list(set list) of bug reports
     Set<Issue> oldIssues = getIssues();
-    //создаем новый объект = вызываем конструктор класса Issue
+    //create new object = call constructor Issue class
     Issue newIssue = new Issue().withSubject("Test issue").withDescription("New Test Issue");
-    //переделываем чтоб возвращал issueId
+    //rebuild to return issueID
     int issueId = createIssue(newIssue);
-    //получаем новый список(множество)
+    //get new list(set list) of bug reports)
     Set<Issue> newIssues = getIssues();
     oldIssues.add(newIssue.withId(issueId));
-    //срасниваем списки(множества)
+    //check old and new lists
     assertEquals(newIssues, oldIssues);
   }
 
   private Set<Issue> getIssues() throws IOException {
-    //для Auth используется Executor в который передается запрос
-    //создаем метод Executor который принимает API key
-    //присваиваем responce в локальную переменную jason
+    /*
+    for Auth use Executor where you send request
+    create method Executor which accepts API key
+    assign responce into local var jason
+    */
     String json = getExecutor().execute(Request.Get("http://demo.bugify.com/api/issues.json"))
             .returnContent().asString();
-    //подготавливаем преобразование json в множество
-    //parse текс полученный от сервера и на выходе получаем json элемент parsed
+    /*
+    prepare transformation json to Set
+    parse text received from server and get json element parsed
+    */
     JsonElement parsed = new JsonParser().parse(json);
-    //из json элемента по ключу извлекаем нужную часть
-    //получаем нужный список и присваиваем в локальную переменную
+    /*
+    from json element using key and get a needed part
+    get list and assign to local var
+    */
     JsonElement issues = parsed.getAsJsonObject().get("issues");
-    //и теперь полученный список issues преобразовываем в множество типа issues
+    //transform list received into Set
     return new Gson().fromJson(issues, new TypeToken<Set<Issue>>() {
     }.getType());
   }
@@ -56,14 +62,14 @@ public class RestTests {
   }
 
   private int createIssue(Issue newIssue) throws IOException {
-    //набор пар кодируем и упаковываем в запрос
+    //pack pairs into request
     String json = getExecutor().execute(Request.Post("http://demo.bugify.com/api/issues.json")
             .bodyForm(new BasicNameValuePair("subject", newIssue.getSubject()),
                     new BasicNameValuePair("description", newIssue.getDescription())))
             .returnContent().asString();
-    //анализируем строчку
+    //analize
     JsonElement parsed = new JsonParser().parse(json);
-    //берем значение по ключу и возвращием его как целое число getAsInt()
+    //get parameter by key and return as int
     return parsed.getAsJsonObject().get("issue_id").getAsInt();
   }
 }

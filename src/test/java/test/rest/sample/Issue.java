@@ -1,7 +1,7 @@
 package test.rest.sample;
 
 /**
- * Created by pshynin on 11/10/16.
+ * Created by pshynin on 11/10/15.
  */
 public class Issue {
 
